@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/RegistrationForm.iml" filepath="$PROJECT_DIR$/.idea/modules/RegistrationForm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RegistrationForm_main.iml" filepath="$PROJECT_DIR$/.idea/modules/RegistrationForm_main.iml" group="RegistrationForm" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RegistrationForm_test.iml" filepath="$PROJECT_DIR$/.idea/modules/RegistrationForm_test.iml" group="RegistrationForm" />
     </modules>
   </component>
 </project>
