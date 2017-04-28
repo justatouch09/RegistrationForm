@@ -1,11 +1,14 @@
+import java.util.ArrayList;
+
 /**
  * Created by jaradtouchberry on 4/28/17.
  */
 public class User {
-    Integer Id;
-    String userName;
-    String address;
-    String email;
+    private Integer Id;
+    private String userName;
+    private String address;
+    private String email;
+    //ArrayList<User> users = new ArrayList<>();
 
     public User() {
 

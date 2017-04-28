@@ -15,11 +15,10 @@ public class Main {
     //prepare statement so no one tampers with database, so no one can mess with database IMPORTANT
     //replace question marks witg 1 2
     public static void insertUsers(Connection conn, Integer id, String userName, String address, String email) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO User VALUES (NULL, ?, ?, ?, ?)");
-        stmt.setInt(1, id);
-        stmt.setString(2, userName);
-        stmt.setString(3, address);
-        stmt.setString(4, email);
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO User VALUES (NULL, ?, ?, ?)");
+        stmt.setString(1, userName);
+        stmt.setString(2, address);
+        stmt.setString(3, email);
         stmt.execute();//execute sql db// changing data not returning//
     }
 
@@ -37,13 +36,21 @@ public class Main {
             String email = results.getString("email");//value of text collum return
             users.add(new User(id, userName, address, email));//craft values these into an object and store to message arraylist
         }
-        return users;//return arraylist
+        return users;//return array list
     }
 
-//    public static updateUser
-//
-//    public static deleteUser
-//
+    public static ArrayList<User> updateUser(Connection conn) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("UPDATE * FROM users");
+        ResultSet results = stmt.executeQuery();
+        while (results.next()) {
+    }
+
+
+   public static ArrayList<User> deleteUser(Connection conn) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("DELETE * FROM users");
+        ResultSet results = stmt.executeQuery();
+
+
 //    public static void main(String[] args) throws SQLException { //main method cant define methods in method
 //        //tels h2 to give us interface to work with
 //        Server.createWebServer().start();
