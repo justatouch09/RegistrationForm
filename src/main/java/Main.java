@@ -49,6 +49,9 @@ public class Main {
    public static ArrayList<User> deleteUser(Connection conn) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("DELETE * FROM users");
         ResultSet results = stmt.executeQuery();
+        while (results.next()) {
+
+    }
 
 
 //    public static void main(String[] args) throws SQLException { //main method cant define methods in method
