@@ -1,3 +1,4 @@
+import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -8,7 +9,7 @@ public class User {
     private String userName;
     private String address;
     private String email;
-    //ArrayList<User> users = new ArrayList<>();
+    public static ArrayList<User> users = new ArrayList<>();
 
     public User() {
 
@@ -51,6 +52,7 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+
     }
 }
 

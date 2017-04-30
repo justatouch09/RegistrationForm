@@ -1,74 +1,103 @@
-import sun.plugin2.message.Message;
+import jodd.json.JsonParser;
+import jodd.json.JsonSerializer;
+import org.h2.tools.Server;
+import spark.Spark;
 
 import java.sql.*;
 import java.util.ArrayList;
 
-/**
- * Created by jaradtouchberry on 4/27/17.
- */
+
 public class Main {
 
     public static void createTables(Connection conn) throws SQLException {
         Statement stmt = conn.createStatement();
         stmt.execute("CREATE TABLE IF NOT EXISTS User (id INTEGER, userName VARCHAR, address VARCHAR, email VARCHAR)");
     }
-    //prepare statement so no one tampers with database, so no one can mess with database IMPORTANT
-    //replace question marks witg 1 2
-    public static void insertUsers(Connection conn, Integer id, String userName, String address, String email) throws SQLException {
+
+    public static void insertUser(Connection conn, String userName, String address, String email) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("INSERT INTO User VALUES (NULL, ?, ?, ?)");
         stmt.setString(1, userName);
         stmt.setString(2, address);
         stmt.setString(3, email);
-        stmt.execute();//execute sql db// changing data not returning//
+        stmt.execute();
     }
 
-    //read messages from database over connection
     public static ArrayList<User> selectUsers(Connection conn) throws SQLException {
-        //define variable to get read to return
         ArrayList<User> users = new ArrayList<>();
-        //goal to fill
         PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users");
-        ResultSet results = stmt.executeQuery();//execute query get while results back
+        ResultSet results = stmt.executeQuery();
         while (results.next()) {
-            Integer id = results.getInt("id");//id collum store as int
-            String userName = results.getString("userName");// id store string
-            String address = results.getString("address");//value of text collum return
-            String email = results.getString("email");//value of text collum return
-            users.add(new User(id, userName, address, email));//craft values these into an object and store to message arraylist
+            Integer id = results.getInt("id");
+            String userName = results.getString("userName");
+            String address = results.getString("address");
+            String email = results.getString("email");
+            users.add(new User(id, userName, address, email));
         }
-        return users;//return array list
+        return users;
     }
 
-    public static ArrayList<User> updateUser(Connection conn) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("UPDATE * FROM users");
-        ResultSet results = stmt.executeQuery();
-        while (results.next()) {
+    public static void updateUser(Connection conn, User user) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("UPDATE users SET username=?, address=?, email=?, WHERE id=?");
+        stmt.setString(1, user.getUserName());
+        stmt.setString(2, user.getAddress());
+        stmt.setString(3, user.getEmail());
+        stmt.setInt(4, user.getId());
     }
 
-
-   public static ArrayList<User> deleteUser(Connection conn) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("DELETE * FROM users");
-        ResultSet results = stmt.executeQuery();
-        while (results.next()) {
-
+    public static void deleteUser(Connection conn, Integer id) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("DELETE * FROM user Where id = ?");
+        stmt.setInt(1, id);
+        stmt.execute();
     }
+    
+    public static void main(String[] args) throws SQLException {
+        Server.createWebServer().start();
+        Spark.staticFileLocation("/public");
+        Connection conn = DriverManager.getConnection("jdbc:h2:./main");
+        createTables(conn);
+        Spark.init();
 
+        Spark.get(
+                "/get-users",
+                ((request, response) -> {
+                    ArrayList<User> users = selectUsers(conn);
+                    JsonSerializer s = new JsonSerializer();
+                    return s.serialize(users);
+                })
+        );
 
-//    public static void main(String[] args) throws SQLException { //main method cant define methods in method
-//        //tels h2 to give us interface to work with
-//        Server.createWebServer().start();
-//
-//        //put static in resources directory
-//        Spark.staticFileLocation("/public");
-//
-//        //no routes need sparkinit
-//        Spark.init();
-//        //need a connection to a database//look at connection string. looks at drover to connect to db "(h2) driver"
-//        Connection conn = DriverManager.getConnection("jdbc:h2:./main");
-//        //using method defined to create tables
-//        createTables(conn);
-//        //after adding public folder spark now know to use static//in the root of my resources directory
-//    public static void main(String[] args) {
-//        // your code here.
+        Spark.post(
+                "add-user",
+                ((request, response) -> {
+                    String body = request.body();
+                    JsonParser p = new JsonParser();
+                    User user = p.parse(body, User.class);
+                    insertUser(conn, user.getUserName(), user.getAddress(), user.getEmail());
+                    return "";
+                })
+        );
+
+        Spark.delete(
+                "/user/:id",
+                (req, rep) -> {
+                    Integer id = Integer.valueOf(req.params(":id"));
+                    deleteUser(conn, id);
+                    return "";
+                }
+        );
+
+        Spark.put(
+                "/user",
+                (req, res) -> {
+                    String body = req.body();
+                    JsonParser p = new JsonParser();
+                    User user = p.parse(body, User.class);
+                    updateUser(conn, user);
+                    return "";
+                }
+        );
     }
 }
+
+
+
